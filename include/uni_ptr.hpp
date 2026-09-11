@@ -1,27 +1,41 @@
-template<typename T>
-class uni_ptr{
+#include <cstddef>
+#include <memory>
+template<typename T, typename deleter = std::default_delete<T>>
+class uni_ptr: private deleter {
+    using element_type=T;
     T* m_ptr;
-    public:
-        uni_ptr(const uni_ptr&) = delete;
-        uni_ptr& operator=(const uni_ptr&) = delete;
-        
-        uni_ptr(T* ptr) : m_ptr(ptr) {}
-        ~uni_ptr() { delete m_ptr; }
+    uni_ptr(T* ptr = nullptr, deleter d = deleter());//
 
-        T& operator*() { return *m_ptr; }
-        T* operator->() { return m_ptr; }
-        T* get() const { return m_ptr; }
+public:
+    uni_ptr(const uni_ptr&) = delete;
+    uni_ptr& operator=(const uni_ptr&) = delete;
+//move-семантика
+    uni_ptr& operator=(uni_ptr&& move) noexcept;//
+    uni_ptr(uni_ptr&& move) noexcept;//
+//
 
-        // Enable move semantics
-        uni_ptr(uni_ptr&& other) noexcept : m_ptr(other.m_ptr) {
-            other.m_ptr = nullptr;
-        }
-        uni_ptr& operator=(uni_ptr&& other) noexcept {
-            if (this != &other) {
-                delete m_ptr;
-                m_ptr = other.m_ptr;
-                other.m_ptr = nullptr;
-            }
-            return *this;
-        }
+    element_type* release(element_type* new_ptr = nullptr) noexcept;//
+    void reset (element_type* new_ptr) noexcept;//
+    void swap(uni_ptr& other) noexcept;//
+
+    ~uni_ptr();//
+
+    T* get() const noexcept;//
+    deleter& get_deleter() noexcept;//
+    const deleter& get_deleter() const noexcept;
+    operator bool() const noexcept;//
+    T& operator*();//
+    T* operator->();//
+    T& operator[](std::size_t i);
+
+    bool operator==(const uni_ptr& other) const;//
+    bool operator!=(const uni_ptr& other) const;//
+    bool operator<(const uni_ptr& other) const;
+    bool operator<=(const uni_ptr& other) const;
+    bool operator>(const uni_ptr& other) const;
+    bool operator>=(const uni_ptr& other) const;
+
+    template<typename ... Args>
+    uni_ptr make_unique(Args&& ... args);//
+    uni_ptr make_unique(size_t size);//
 };

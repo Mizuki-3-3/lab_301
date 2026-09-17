@@ -4,6 +4,13 @@
 
 //control block в умных указателях
 //виртуальный деструктор
+template <typename T>
+class fixture{
+    T* fix_ptr;
+public:
+    void set_up();
+    void tear_down();
+};
 
 typedef void (*test_func)();
 
@@ -16,18 +23,18 @@ typedef struct _test{
     const char* name;
     void (*test_func)(void);
     struct _test* next;
-}_testtest;
+}_test;
 
 template <typename F>
-F& get_fixture(){
-    static F instance;
+fixture<F>& get_fixture(){
+    static fixture<F> instance;
     return instance; 
 }
 
 #define TEST_F(test_obj, test_name) \
-    static void test_name##_test(test_obj& _fix); \
+    static void test_name##_test(fixture<test_obj>& _fix); \
     static void test_name##_runner(){ \
-        test_obj& _fix = get_fixture<test_obj>(); \
+        fixture<test_obj>& _fix = get_fixture<test_obj>(); \
         _fix.set_up(); \
         test_name##_test(_fix); \
         _fix.tear_down(); \
@@ -35,7 +42,7 @@ F& get_fixture(){
     static void __attribute__((constructor)) test_name##_init() { \
         register_test(#test_name, test_name##_runner); \
     } \
-    static void test_name##_test(fixture_type& _fix)
+    static void test_name##_test(fixture<test_obj>& _fix)
 
 #define TEST_ENTRY_POINT \
     int main(void) { \
@@ -45,9 +52,3 @@ F& get_fixture(){
         return result; \
     }
 
-template <typename T>
-class fixture{
-    T* fixture_ptr;
-    void set_up();
-    void tear_down();
-};

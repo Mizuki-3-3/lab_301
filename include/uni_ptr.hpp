@@ -3,10 +3,11 @@
 
 template<typename T, typename deleter = std::default_delete<T>>
 class uni_ptr: public smart_base<T, deleter> {
-    using element_type=T;
-    uni_ptr(T* new_ptr = nullptr, deleter d = deleter());//
 
 public:
+    uni_ptr(T* new_ptr = nullptr, deleter d = deleter());//
+    using element_type=T;
+    using deleter_type = deleter;
     uni_ptr(const uni_ptr&) = delete;
     uni_ptr& operator=(const uni_ptr&) = delete;
 //move-семантика
@@ -14,7 +15,7 @@ public:
     uni_ptr(uni_ptr&& move) noexcept;//
 
     element_type* release() noexcept;//
-    void reset (element_type* new_ptr, deleter d) noexcept;//
+    void reset (element_type* new_ptr = nullptr, deleter d = deleter()) noexcept;//
     void swap(uni_ptr& other) noexcept;//
 
     ~uni_ptr() = default;
@@ -50,3 +51,6 @@ public:
     
     static uni_ptr make_unique(size_t n);
 };
+
+
+#include "uni_ptr.tpp"

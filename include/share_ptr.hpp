@@ -2,11 +2,13 @@
 #include <cstddef>
 #include <memory>
 #include "smart_base.hpp"
+
 template <typename T, typename deleter = std::default_delete<T>>
 class share_ptr: public smart_base<T, deleter> {
-    using element_type=T;
     size_t* ref_count;
 public:
+    using element_type = T;
+    using deleter_type = deleter;
     explicit share_ptr(element_type* ptr = nullptr, deleter d = deleter()); //
 
     share_ptr(const share_ptr& other); 
@@ -51,3 +53,5 @@ public:
     size_t use_count() const noexcept;//
 
 };
+
+#include "share_ptr.tpp"

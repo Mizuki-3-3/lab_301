@@ -1,5 +1,4 @@
-#include "uni_ptr.hpp"
-#include "smart_base.hpp"
+
 
 template<typename T, typename deleter>
 uni_ptr<T, deleter>::uni_ptr(T* new_ptr, deleter d): smart_base<T, deleter>(new_ptr, d) {};
@@ -19,7 +18,7 @@ uni_ptr<T, deleter>::uni_ptr(uni_ptr<T, deleter>&& move) noexcept:
 
 template<typename T, typename deleter>
 T* uni_ptr<T, deleter>::release() noexcept{
-    T* temp = get();
+    T* temp = smart_base<T, deleter>::get();
     smart_base<T, deleter>::set_ptr(nullptr);
     return temp;
 }
@@ -68,7 +67,7 @@ uni_ptr<T[], deleter>::uni_ptr(uni_ptr<T[], deleter>&& move) noexcept:
 
 template<typename T, typename deleter>
 T* uni_ptr<T[], deleter>::release() noexcept{
-    T* temp = get();
+    T* temp = smart_base<T, deleter>::get();
     smart_base<T[], deleter>::set_ptr(nullptr);
     return temp;
 }

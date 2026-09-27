@@ -44,6 +44,32 @@ int assert_fail(const char* expr, const char* file, unsigned int line){
     std::cerr << RED << "[FAIL] " << RESET << expr << " in " << file << ":" << line << "\n";
     return 1;
 }
+void expected_true(const char* input, bool cond){
+    std::cerr << __FILE__ << ":" << __LINE__ <<"\nInput: " << input << "\n";
+    if (cond){
+        std::cerr << GREEN << "[PASS]" << RESET << "\n";
+        int_success();
+    }else{
+        std::cerr << RED << "[FAIL]" << RESET << "\n";
+        int_fail();
+    }
+}
+
+template <typename A, typename B>
+void expect_eq_scalar(const char* input, A expected, B actual){
+    std::cerr << __FILE__ << ":" << __LINE__ <<"\nInput: " << input << "\n";
+    if (actual == expected){
+        std::cerr << GREEN << " Expected: "<< expected
+            << std::endl<<" Actual: " 
+            <<actual<< " [PASS]" << RESET << std::endl;
+            int_success();
+    }else{
+        std::cerr << RED << " Expected: "<< expected
+            << std::endl<<" Actual: "
+            << actual << " [FAIL]" << RESET << std::endl;
+            int_fail();
+    }
+}
 
 void run_test() {
     _test* current = head;
@@ -83,13 +109,3 @@ void cleanup_tests(){
     head = tail = nullptr;
 }
 
-template <typename T>
-void fixture<T>::set_up(){
-    fix_ptr = new T();
-}
-
-template <typename T>
-void fixture<T>::tear_down(){
-    delete fix_ptr;
-    fix_ptr = nullptr;
-}

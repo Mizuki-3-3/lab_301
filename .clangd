@@ -1,3 +1,4 @@
 CompileFlags:
     Add:
         - -IC:\Users\kamila\labs\3_сем\lab_001\include
+        - -std=c++20

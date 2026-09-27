@@ -1,8 +1,11 @@
-#include "share_ptr.hpp"
+#include <cstddef>
 
 template <typename T, typename deleter>
 share_ptr<T, deleter>::share_ptr(element_type* ptr, deleter d)
-    : smart_base<T, deleter>(ptr, std::move(d)), ref_count(new size_t(1)) {}
+    : smart_base<T, deleter>(ptr, std::move(d)){
+    if (ptr){ref_count = new size_t(1);}
+    else{ref_count = nullptr;}
+}
 
 template <typename T, typename deleter>
 share_ptr<T, deleter>::share_ptr(const share_ptr& other) : smart_base<T, deleter>(other.get(), other.get_deleter()), ref_count(other.ref_count){
@@ -57,10 +60,10 @@ share_ptr<T, deleter>& share_ptr<T, deleter>::operator=(share_ptr&& move) noexce
 }
 
 template <typename T, typename deleter>
-T& share_ptr<T, deleter>::operator*() const { return *get(); }
+T& share_ptr<T, deleter>::operator*() const { return *smart_base<T, deleter>::get(); }
 
 template <typename T, typename deleter>
-T* share_ptr<T, deleter>::operator->() const { return get(); }
+T* share_ptr<T, deleter>::operator->() const { return smart_base<T, deleter>::get(); }
 
 template <typename T, typename deleter>
 size_t share_ptr<T, deleter>::use_count() const noexcept { return ref_count ? *ref_count : 0; }
@@ -145,10 +148,10 @@ share_ptr<T[], deleter>& share_ptr<T[], deleter>::operator=(share_ptr&& move) no
 }
 
 template <typename T, typename deleter>
-T& share_ptr<T[], deleter>::operator[](size_t i) { return get()[i]; }
+T& share_ptr<T[], deleter>::operator[](size_t i) { return smart_base<T[], deleter>::get()[i]; }
 
 template <typename T, typename deleter>
-const T& share_ptr<T[], deleter>::operator[](size_t i) const { return get()[i]; }
+const T& share_ptr<T[], deleter>::operator[](size_t i) const { return smart_base<T[], deleter>::get()[i]; }
 
 template <typename T, typename deleter>
 size_t share_ptr<T[], deleter>::use_count() const noexcept { return ref_count ? *ref_count : 0; }

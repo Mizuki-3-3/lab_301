@@ -1,5 +1,5 @@
 #pragma once
-
+#include <utility>
 template <typename T, typename deleter>
 class smart_base: private deleter {
     T* ptr;
@@ -52,6 +52,14 @@ public:
     bool operator<=(const smart_base& other) const;
     bool operator>(const smart_base& other) const;
     bool operator>=(const smart_base& other) const;
+    smart_base operator++(int);
+    smart_base operator++();
+    smart_base operator--(int);
+    smart_base operator--();
+    smart_base operator+(int n);
+    smart_base operator-(int n);
 protected:
     void set_ptr(T* new_ptr){ptr = new_ptr;}
 };
+
+#include "smart_base.tpp"

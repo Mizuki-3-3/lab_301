@@ -1,16 +1,8 @@
 #pragma once
-
-#include <cstddef>
-
-//control block в умных указателях
-//виртуальный деструктор
-template <typename T>
-class fixture{
-    T* fix_ptr;
-public:
-    void set_up();
-    void tear_down();
-};
+#include <chrono>
+#include <ratio>
+#include <stddef.h>
+#include <iostream>
 
 typedef void (*test_func)();
 
@@ -25,24 +17,27 @@ typedef struct _test{
     struct _test* next;
 }_test;
 
-template <typename F>
-fixture<F>& get_fixture(){
-    static fixture<F> instance;
-    return instance; 
-}
+class smart_ptr_benchmark{
+protected:
+    void run_benchmark(const char* name, size_t iterations){
+        std::chrono::duration<double, std::milli> ms = end - start;
+        std::cout<< "BENCH: " <<name<<"| OBJECTS: "<<iterations<<"| TIME: "<< ms.count()<<"ms\n";
+    }
+};
 
-#define TEST_F(test_obj, test_name) \
-    static void test_name##_test(fixture<test_obj>& _fix); \
+#define TEST(test_name) \
+    static void test_name##_test(); \
     static void test_name##_runner(){ \
-        fixture<test_obj>& _fix = get_fixture<test_obj>(); \
-        _fix.set_up(); \
-        test_name##_test(_fix); \
-        _fix.tear_down(); \
+        try{ \
+        test_name##_test(); \
+        }catch(...){ \
+            std::cerr << "Exception caught in test: " << #test_name << std::endl; \
+        } \
     } \
     static void __attribute__((constructor)) test_name##_init() { \
         register_test(#test_name, test_name##_runner); \
     } \
-    static void test_name##_test(fixture<test_obj>& _fix)
+    static void test_name##_test()
 
 #define TEST_ENTRY_POINT \
     int main(void) { \
@@ -52,3 +47,21 @@ fixture<F>& get_fixture(){
         return result; \
     }
 
+#define TEST_F(fixture_type, test_name) \
+    static void test_name##_test(fixture_type& _fix); \
+    static void test_name##_runner(){ \
+        fixture_type& _fix = get_fixture<fixture_type>(); \
+        _fix.set_up(); \
+        test_name##_test(); \
+        _fix.tear_down(); \
+    } \
+    static void __attribute__((constructor)) test_name##_init() { \
+        register_test(#test_name, test_name##_runner); \
+    } \
+    static void test_name##_test()
+
+    template <typename T>
+class uni_fix{
+    uni_ptr<T>
+    void set_up(){ptr = new}
+};

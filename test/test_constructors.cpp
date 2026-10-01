@@ -29,7 +29,7 @@ void test_init_constructor(){
     expect_eq_scalar("указатель созданый через new", ref, smrt_ptr.get());
     expected_true("castom deleter", (std::is_same_v<typename T::deleter_type, decltype(cast_destr())>));
     if constexpr (std::is_same_v<T, share_ptr<elem_t>>){
-        expect_eq_scalar("how many shared to this ptr", 1u, smrt_ptr.use_count());
+        expect_eq_scalar("как много share-ов ссылаются на этот указатель", 1u, smrt_ptr.use_count());
     }
 }
 
@@ -41,7 +41,7 @@ void test_copy_constructor(){
     T copy_ptr(smrt_ptr);
     expect_eq_scalar("совпадают ли указатели", smrt_ptr.get(), copy_ptr.get());
     expected_true("совпадают ли удалители", (copy_ptr.get_deleter() == smrt_ptr.get_deleter()));
-    expect_eq_scalar("how many shared to this ptr", 2u, smrt_ptr.use_count());
+    expect_eq_scalar("как много share-ов ссылаются на этот указатель", 2u, smrt_ptr.use_count());
 }
 
 template <typename T>
@@ -52,7 +52,7 @@ void test_copy_assignment_operator(){
     T copy_ptr = smrt_ptr;
     expect_eq_scalar("совпадают ли указатели", smrt_ptr.get(), copy_ptr.get());
     expected_true("совпадают ли удалители", (copy_ptr.get_deleter() == smrt_ptr.get_deleter()));
-    expect_eq_scalar("how many shared to this ptr", 2u, smrt_ptr.use_count());
+    expect_eq_scalar("как много share-ов ссылаются на этот указатель", 2u, smrt_ptr.use_count());
 }
 
 template <typename T>
@@ -66,8 +66,8 @@ void test_move_constructor(){
 
     expected_true("совпадают ли удалители", (move_ptr.get_deleter() == old_ptr.get_deleter()));
     if constexpr (std::is_same_v<T, share_ptr<elem_t>>){
-        expect_eq_scalar("how many shared to this ptr", 1u, move_ptr.use_count());
-        expect_eq_scalar("how many shared to this ptr", 0u, old_ptr.use_count());
+        expect_eq_scalar("как много share-ов ссылаются на этот указатель", 1u, move_ptr.use_count());
+        expect_eq_scalar("как много share-ов ссылаются на этот указатель", 0u, old_ptr.use_count());
     }
 }
 
@@ -82,24 +82,49 @@ void test_move_assignment_operator(){
 
     expected_true("совпадают ли удалители", (move_ptr.get_deleter() == old_ptr.get_deleter()));
     if constexpr (std::is_same_v<T, share_ptr<elem_t>>){
-        expect_eq_scalar("how many shared to this ptr", 1u, move_ptr.use_count());
-        expect_eq_scalar("how many shared to this ptr", 0u, old_ptr.use_count());
+        expect_eq_scalar("как много share-ов ссылаются на этот указатель", 1u, move_ptr.use_count());
+        expect_eq_scalar("как много share-ов ссылаются на этот указатель", 0u, old_ptr.use_count());
     }
 }
 
-TEST(uni_ptr_default_constructor){test_default_constructor<uni_ptr<int>>();}
+TEST(uni_ptr_default_constructor){
+    uni_ptr<int> smrt_ptr = uni_ptr<int>::make_unique();
+    expect_eq_scalar("default ptr", nullptr, smrt_ptr.get());
+    expected_true("default deleter",(std::is_same_v<typename uni_ptr<int>::deleter_type,std::default_delete<int>>));
+}
 TEST(share_ptr_default_constructor){test_default_constructor<share_ptr<int>>();}
 
-TEST(uni_ptr_init_constructor){test_init_constructor<uni_ptr<int, cast_destr>>();}
+TEST(uni_ptr_init_constructor){
+    int* ref = new int(9);
+    uni_ptr<int, cast_destr> smrt_ptr = uni_ptr<int, cast_destr>::make_unique(ref);
+    expect_eq_scalar("указатель созданый через new", ref, smrt_ptr.get());
+    expected_true("castom deleter", (std::is_same_v<typename uni_ptr<int>::deleter_type, decltype(cast_destr())>));
+}
 TEST(share_ptr_init_constructor){test_init_constructor<share_ptr<int, cast_destr>>();}
 
 TEST(share_ptr_copy_constructor){test_copy_constructor<share_ptr<int, cast_destr>>();}
 
 TEST(share_ptr_copy_assignment_operator){test_copy_assignment_operator<share_ptr<int, cast_destr>>();}
 
-TEST(uni_ptr_move_constructor){test_move_constructor<uni_ptr<int, cast_destr>>();}
+TEST(uni_ptr_move_constructor){
+    int* ref = new int(9);
+    uni_ptr<int, cast_destr> old_ptr = uni_ptr<int, cast_destr>::make_unique(ref);
+    uni_ptr<int, cast_destr> move_ptr = std::move(old_ptr);
+    expect_eq_scalar("проверить новый указатель", ref, move_ptr.get());
+    expect_eq_scalar("проверить старый указатель", nullptr, old_ptr.get());
+
+    expected_true("совпадают ли удалители", (std::is_same_v<decltype(old_ptr.get_deleter()), decltype(move_ptr.get_deleter())>));
+}
 TEST(share_ptr_move_constructor){test_move_constructor<share_ptr<int, cast_destr>>();}
 
-TEST(uni_ptr_move_assignment_operator){test_move_assignment_operator<uni_ptr<int, cast_destr>>();}
+TEST(uni_ptr_move_assignment_operator){
+    int* ref = new int(9);
+    uni_ptr<int, cast_destr> old_ptr = uni_ptr<int, cast_destr >::make_unique(ref);
+    uni_ptr<int, cast_destr> move_ptr = std::move(old_ptr);
+    expect_eq_scalar("проверить новый указатель", ref, move_ptr.get());
+    expect_eq_scalar("проверить старый указатель", nullptr, old_ptr.get());
+
+    expected_true("совпадают ли удалители", (std::is_same_v<decltype(old_ptr.get_deleter()), decltype(move_ptr.get_deleter())>));
+}
 TEST(share_ptr_move_assignment_operator){test_move_assignment_operator<share_ptr<int, cast_destr>>();}
 

@@ -5,6 +5,7 @@ LDFLAGS = -fsanitize=address,undefined
 TARGET = test
 
 SRCS =	test/assertions.cpp \
+		src/errors.cpp \
 		test/test_constructors.cpp \
 		test/test_destructors.cpp \
 		test/test_operators.cpp \

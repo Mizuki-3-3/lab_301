@@ -91,9 +91,10 @@ public:
     iterator end();
     const_iterator end() const;
 
-    dyn_arr& operator=(const dyn_arr&) = delete;
-    dyn_arr& operator=(dyn_arr& other);
+    dyn_arr& operator=(dyn_arr other);
 
     size_t size() const; 
     void resize(size_t new_size);
 };
+
+#include "dyn_arr.tpp"

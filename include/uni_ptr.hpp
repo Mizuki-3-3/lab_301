@@ -3,9 +3,9 @@
 
 template<typename T, typename deleter = std::default_delete<T>>
 class uni_ptr: public smart_base<T, deleter> {
+    uni_ptr(T* new_ptr = nullptr, deleter d = deleter());//
 
 public:
-    uni_ptr(T* new_ptr = nullptr, deleter d = deleter());//
     using element_type=T;
     using deleter_type = deleter;
     uni_ptr(const uni_ptr&) = delete;

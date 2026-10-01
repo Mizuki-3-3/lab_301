@@ -6,23 +6,23 @@
 TEST(uni_ptr_swap_exchanges_pointers){
     int* raw1 = new int(1);
     int* raw2 = new int(2);
-    uni_ptr<int> a(raw1);
-    uni_ptr<int> b(raw2);
+    uni_ptr<int> a = uni_ptr<int>::make_unique(raw1);
+    uni_ptr<int> b= uni_ptr<int>::make_unique(raw2);
     a.swap(b);
     expect_eq_scalar("a теперь владеет вторым указателем", raw2, a.get());
     expect_eq_scalar("b теперь владеет первым указателем", raw1, b.get());
 }
 
 TEST(uni_ptr_swap_with_empty){
-    uni_ptr<int> full(new int(9));
-    uni_ptr<int> empty_ptr;
+    uni_ptr<int> full= uni_ptr<int>::make_unique(new int(9));
+    uni_ptr<int> empty_ptr= uni_ptr<int>::make_unique();
     full.swap(empty_ptr);
     expect_eq_scalar("full стал пустым", nullptr, full.get());
     expect_eq_scalar("empty_ptr получил значение", 9, *empty_ptr);
 }
 
 TEST(uni_ptr_self_swap_does_not_break_state){
-    uni_ptr<int> ptr(new int(5));
+    uni_ptr<int> ptr= uni_ptr<int>::make_unique(new int(5));
     ptr.swap(ptr);
     expect_eq_scalar("значение не изменилось после self-swap", 5, *ptr);
 }

@@ -17,18 +17,13 @@ double to_ms(bench_clock::duration d){
  
 constexpr int N = 100000;
  
-} // namespace
- 
-// Замеряет время создания/чтения/удаления N объектов для сырого указателя,
-// uni_ptr и share_ptr. Печатает готовую markdown-таблицу в stderr —
-// её можно скопировать прямо в README.md, как у одногруппницы.
-TEST(benchmark_raw_vs_uni_ptr_vs_share_ptr){
-    // --- Raw ---
+}
+
+TEST(benchmark_raw_vs_uni_ptr_vs_share_ptr){//сырой
     auto raw_data = new int*[N];
     auto t0 = bench_clock::now();
     for (int i = 0; i < N; ++i) { raw_data[i] = new int(i); }
     auto t1 = bench_clock::now();
-    long long sum = 0;
     for (int i = 0; i < N; ++i) { sum += *raw_data[i]; }
     auto t2 = bench_clock::now();
     for (int i = 0; i < N; ++i) { delete raw_data[i]; }
@@ -39,8 +34,7 @@ TEST(benchmark_raw_vs_uni_ptr_vs_share_ptr){
     double raw_read = to_ms(t2 - t1);
     double raw_delete = to_ms(t3 - t2);
  
-    // --- uni_ptr ---
-    std::vector<uni_ptr<int>> uni_data;
+    std::vector<uni_ptr<int>> uni_data;  //uni_ptr
     uni_data.reserve(N);
     auto u0 = bench_clock::now();
     for (int i = 0; i < N; ++i) { uni_data.push_back(uni_ptr<int>(new int(i))); }
@@ -54,9 +48,8 @@ TEST(benchmark_raw_vs_uni_ptr_vs_share_ptr){
     double uni_create = to_ms(u1 - u0);
     double uni_read = to_ms(u2 - u1);
     double uni_delete = to_ms(u3 - u2);
- 
-    // --- share_ptr ---
-    std::vector<share_ptr<int>> shr_data;
+
+    std::vector<share_ptr<int>> shr_data;//share_ptr
     shr_data.reserve(N);
     auto s0 = bench_clock::now();
     for (int i = 0; i < N; ++i) { shr_data.push_back(share_ptr<int>(new int(i))); }

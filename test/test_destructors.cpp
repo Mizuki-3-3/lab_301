@@ -2,50 +2,50 @@
 #include "share_ptr.hpp"
 #include "test.hpp"
 #include "assertions.hpp"
-
+ 
 namespace {
-
+ 
 struct counting_deleter {
     int* counter;
     explicit counting_deleter(int* c = nullptr) : counter(c) {}
     template <typename T>
     void operator()(T* ptr) const {
-        if (counter) { ++(*counter); }
+        if (counter && ptr) { ++(*counter); }
         delete ptr;
     }
     bool operator==(const counting_deleter& other) const { return counter == other.counter; }
 };
-
+}
 struct counting_array_deleter {
     int* counter;
     explicit counting_array_deleter(int* c = nullptr) : counter(c) {}
     template <typename T>
     void operator()(T* ptr) const {
-        if (counter) { ++(*counter); }
+        if (counter &&  ptr) { ++(*counter); }
         delete[] ptr;
     }
     bool operator==(const counting_array_deleter& other) const { return counter == other.counter; }
 };
-
+ 
 }
-
+ 
 TEST(uni_ptr_destructor_calls_deleter_once){
     int calls = 0;
     {
-        uni_ptr<int, counting_deleter> ptr(new int(1), counting_deleter(&calls));
+        uni_ptr<int, counting_deleter> ptr= uni_ptr<int, counting_deleter>::make_unique(new int(1), counting_deleter(&calls));
         expect_eq_scalar("deleter not called yet", 0, calls);
     }
     expect_eq_scalar("deleter called exactly once on scope exit", 1, calls);
 }
-
+ 
 TEST(uni_ptr_destructor_on_nullptr_is_safe){
     int calls = 0;
     {
-        uni_ptr<int, counting_deleter> ptr(nullptr, counting_deleter(&calls));
+        uni_ptr<int, counting_deleter> ptr = uni_ptr<int, counting_deleter>::make_unique(nullptr, counting_deleter(&calls));
     }
     expect_eq_scalar("deleter invoked exactly once even for nullptr", 1, calls);
 }
-
+ 
 TEST(share_ptr_destructor_does_not_delete_while_other_owners_alive){
     int calls = 0;
     share_ptr<int, counting_deleter> outer(nullptr, counting_deleter(&calls));
@@ -57,7 +57,7 @@ TEST(share_ptr_destructor_does_not_delete_while_other_owners_alive){
     expect_eq_scalar("object not deleted while outer alive", 0, calls);
     expect_eq_scalar("outer still owns the object", 1u, outer.use_count());
 }
-
+ 
 TEST(share_ptr_destructor_deletes_only_when_last_owner_dies){
     int calls = 0;
     {
@@ -71,7 +71,7 @@ TEST(share_ptr_destructor_deletes_only_when_last_owner_dies){
     }
     expect_eq_scalar("object deleted exactly once when last owner destroyed", 1, calls);
 }
-
+ 
 TEST(share_ptr_array_destructor_calls_delete_array){
     int calls = 0;
     {
@@ -80,7 +80,7 @@ TEST(share_ptr_array_destructor_calls_delete_array){
     }
     expect_eq_scalar("delete[] вызван ровно один раз", 1, calls);
 }
-
+ 
 TEST(uni_ptr_array_destructor_no_crash_with_default_delete){
     {
         auto ptr = uni_ptr<int[]>::make_unique(10);

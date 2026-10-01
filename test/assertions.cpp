@@ -55,22 +55,6 @@ void expected_true(const char* input, bool cond){
     }
 }
 
-template <typename A, typename B>
-void expect_eq_scalar(const char* input, A expected, B actual){
-    std::cerr << __FILE__ << ":" << __LINE__ <<"\nInput: " << input << "\n";
-    if (actual == expected){
-        std::cerr << GREEN << " Expected: "<< expected
-            << std::endl<<" Actual: " 
-            <<actual<< " [PASS]" << RESET << std::endl;
-            int_success();
-    }else{
-        std::cerr << RED << " Expected: "<< expected
-            << std::endl<<" Actual: "
-            << actual << " [FAIL]" << RESET << std::endl;
-            int_fail();
-    }
-}
-
 void run_test() {
     _test* current = head;
     while (current != NULL) {

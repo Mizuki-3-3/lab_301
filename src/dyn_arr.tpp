@@ -239,7 +239,7 @@ template<typename T>
 size_t dyn_arr<T>::size() const { return length; }
 
 template<typename T>
-dyn_arr<T>& dyn_arr<T>::operator=(dyn_arr other) {
+dyn_arr<T>& dyn_arr<T>::operator=(dyn_arr& other) {
     std::swap(data, other.data);
     std::swap(length, other.length);
     return *this;
